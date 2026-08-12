@@ -17,7 +17,7 @@ CREATE OR REPLACE FUNCTION register_worker_profile(
 ) RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public, pg_temp
+SET search_path = public, extensions, pg_temp
 AS $$
 DECLARE
     v_normalized_email text := lower(btrim(p_email));
