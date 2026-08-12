@@ -8,6 +8,7 @@ import 'package:mobile/features/verification/presentation/cubit/verification_sta
 import 'package:mobile/features/verification/data/models/document_model.dart';
 import 'package:mobile/features/verification/data/models/vehicle_model.dart';
 import 'package:mobile/features/routes/presentation/pages/routes_list_page.dart';
+import 'package:mobile/features/verification/presentation/pages/qr_scanner_page.dart';
 import 'package:mobile/core/di/service_locator.dart';
 
 class VerificationPage extends StatefulWidget {
@@ -233,13 +234,25 @@ class _VerificationPageState extends State<VerificationPage> {
           ),
           const SizedBox(height: 10),
           ElevatedButton.icon(
-            onPressed: () => _showQRScanDialog(),
+            onPressed: _scanQRCodeWithCamera,
             icon: const Icon(Icons.qr_code_scanner_rounded),
-            label: const Text('ESCANEAR QR VEHÍCULO'),
+            label: const Text('ESCANEAR QR CON CÁMARA'),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               backgroundColor: Colors.blueAccent,
               foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: _showManualTokenDialog,
+            icon: const Icon(Icons.keyboard_rounded),
+            label: const Text('Ingresar token manualmente'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -424,18 +437,31 @@ class _VerificationPageState extends State<VerificationPage> {
     return Colors.red;
   }
 
-  // Dialogo de simulación de QR de Vehículo
-  void _showQRScanDialog() {
+  // Escaneo con Cámara vía QrScannerPage
+  Future<void> _scanQRCodeWithCamera() async {
+    final scannedToken = await Navigator.of(context).push<String>(
+      MaterialPageRoute(
+        builder: (context) => const QrScannerPage(),
+      ),
+    );
+
+    if (scannedToken != null && scannedToken.trim().isNotEmpty && mounted) {
+      _verificationCubit.scanVehicleQR(scannedToken.trim(), widget.user.id);
+    }
+  }
+
+  // Diálogo de respaldo manual de QR de Vehículo
+  void _showManualTokenDialog() {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Escaneo QR de Vehículo'),
+          title: const Text('Ingreso Manual de Token QR'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Para propósitos de demostración, ingresa un token QR de camión (ej. CAMION-001):',
+                'Ingresa el token QR del camión asignado (ej. CAMION-001 o CAMION-DX9002):',
               ),
               const SizedBox(height: 12),
               TextField(
@@ -461,7 +487,7 @@ class _VerificationPageState extends State<VerificationPage> {
                   _verificationCubit.scanVehicleQR(token, widget.user.id);
                 }
               },
-              child: const Text('Escanear'),
+              child: const Text('Validar'),
             ),
           ],
         );
