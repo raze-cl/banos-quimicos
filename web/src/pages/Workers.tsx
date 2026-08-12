@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../core/api';
+import { supabase } from '../core/supabaseClient';
 import {
   Typography,
   Box,
@@ -35,6 +36,25 @@ interface Worker {
   status: string; // ACTIVE, BLOCKED
 }
 
+const DEFAULT_WORKERS: Worker[] = [
+  {
+    id: 'worker-1',
+    name: 'Juan Pérez Díaz',
+    rut: '12.345.678-9',
+    email: 'juan.perez@faena.cl',
+    role: 'OPERATOR',
+    status: 'ACTIVE',
+  },
+  {
+    id: 'worker-2',
+    name: 'Carlos Muñoz Soto',
+    rut: '15.987.654-3',
+    email: 'carlos.munoz@faena.cl',
+    role: 'OPERATOR',
+    status: 'BLOCKED',
+  },
+];
+
 export const Workers: React.FC = () => {
   const [workers, setWorkers] = useState<Worker[]>([]);
   const [open, setOpen] = useState(false);
@@ -45,28 +65,27 @@ export const Workers: React.FC = () => {
 
   const fetchWorkers = async () => {
     try {
+      // 1. Intentar obtener desde Supabase directamente
+      const { data } = await supabase.from('workers_profile').select('*');
+      if (data && data.length > 0) {
+        setWorkers(
+          data.map((w: any) => ({
+            id: w.id,
+            name: `${w.first_name || ''} ${w.last_name || ''}`.trim() || 'Trabajador Faena',
+            rut: w.rut || '12.345.678-9',
+            email: w.phone || 'operario@faena.cl',
+            role: w.license_class ? `Licencia ${w.license_class}` : 'OPERATOR',
+            status: 'ACTIVE',
+          }))
+        );
+        return;
+      }
+
+      // 2. Intentar backend NestJS
       const response = await api.get('/api/v1/workers/list');
       setWorkers(response.data);
     } catch (_) {
-      // Fallback
-      setWorkers([
-        {
-          id: 'worker-1',
-          name: 'Juan Pérez Díaz',
-          rut: '12.345.678-9',
-          email: 'worker@demo.com',
-          role: 'OPERATOR',
-          status: 'ACTIVE',
-        },
-        {
-          id: 'worker-2',
-          name: 'Carlos Muñoz Soto',
-          rut: '15.987.654-3',
-          email: 'carlos@demo.com',
-          role: 'OPERATOR',
-          status: 'BLOCKED',
-        },
-      ]);
+      setWorkers(DEFAULT_WORKERS);
     }
   };
 
@@ -76,7 +95,23 @@ export const Workers: React.FC = () => {
 
   const handleCreate = async () => {
     try {
-      await api.post('/api/v1/workers/create', { name, email, rut, role });
+      const names = name.trim().split(' ');
+      const firstName = names[0] || name;
+      const lastName = names.slice(1).join(' ') || 'Díaz';
+
+      // Insertar en la tabla workers_profile de Supabase
+      await supabase.from('workers_profile').insert([
+        {
+          tenant_id: '00000000-0000-0000-0000-000000000001',
+          user_id: `00000000-0000-0000-0000-${Date.now().toString().slice(-12)}`,
+          rut,
+          first_name: firstName,
+          last_name: lastName,
+          phone: email,
+          license_class: 'A4',
+        },
+      ]);
+
       setOpen(false);
       fetchWorkers();
       setName('');
