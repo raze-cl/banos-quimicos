@@ -8,36 +8,19 @@ class QrScannerPage extends StatefulWidget {
   State<QrScannerPage> createState() => _QrScannerPageState();
 }
 
-class _QrScannerPageState extends State<QrScannerPage> with WidgetsBindingObserver {
-  late final MobileScannerController _controller;
+class _QrScannerPageState extends State<QrScannerPage> {
+  final MobileScannerController _controller = MobileScannerController(
+    detectionSpeed: DetectionSpeed.noDuplicates,
+    facing: CameraFacing.back,
+    torchEnabled: false,
+    returnImage: false,
+  );
   bool _hasScanned = false;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _controller = MobileScannerController(
-      detectionSpeed: DetectionSpeed.noDuplicates,
-      facing: CameraFacing.back,
-      torchEnabled: false,
-    );
-  }
-
-  @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
-      _controller.stop();
-    } else if (state == AppLifecycleState.resumed) {
-      _controller.start();
-    }
   }
 
   void _onDetect(BarcodeCapture capture) {
@@ -95,11 +78,6 @@ class _QrScannerPageState extends State<QrScannerPage> with WidgetsBindingObserv
             controller: _controller,
             onDetect: _onDetect,
             errorBuilder: (context, error, child) {
-              String errorMessage = 'No se pudo acceder a la cámara.';
-              if (error.errorCode == MobileScannerErrorCode.permissionDenied) {
-                errorMessage = 'Permiso de cámara denegado. Habilítalo en los ajustes del teléfono.';
-              }
-
               return Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
@@ -112,22 +90,49 @@ class _QrScannerPageState extends State<QrScannerPage> with WidgetsBindingObserv
                         size: 56,
                       ),
                       const SizedBox(height: 16),
-                      Text(
-                        errorMessage,
+                      const Text(
+                        'Cámara en espera o no inicializada',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Detalle: ${error.errorCode.name}\nSi persiste, asegúrate de haber dado permiso de Cámara a la app.',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
                         ),
                       ),
                       const SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                        ),
-                        child: const Text('Volver'),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          OutlinedButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Colors.white70),
+                            ),
+                            child: const Text('Volver'),
+                          ),
+                          const SizedBox(width: 12),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              _controller.start();
+                            },
+                            icon: const Icon(Icons.refresh_rounded),
+                            label: const Text('Iniciar Cámara'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
