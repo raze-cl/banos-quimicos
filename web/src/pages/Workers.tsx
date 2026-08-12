@@ -61,6 +61,7 @@ export const Workers: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [rut, setRut] = useState('');
+  const [password, setPassword] = useState('123456');
   const [role, setRole] = useState('OPERATOR');
 
   const fetchWorkers = async () => {
@@ -212,12 +213,21 @@ export const Workers: React.FC = () => {
             onChange={(e) => setRut(e.target.value)}
           />
           <TextField
-            label="Correo Electrónico"
+            label="Correo Electrónico (Usuario Móvil)"
             type="email"
             fullWidth
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            label="Contraseña de Acceso Celular"
+            type="password"
+            fullWidth
+            required
+            helperText="Clave de 6+ caracteres usada por el operario en la App Móvil"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
           <FormControl fullWidth>
             <InputLabel id="role-select">Rol Minero</InputLabel>
