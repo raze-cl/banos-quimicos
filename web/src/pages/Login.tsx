@@ -25,6 +25,11 @@ interface Tenant {
   name: string;
 }
 
+const DEFAULT_TENANTS: Tenant[] = [
+  { id: 'tenant-demo-001', name: 'Servicios Sanitarios del Norte S.A.' },
+  { id: 'tenant-demo-002', name: 'Gestión Faenas Mineras El Abra' },
+];
+
 export const Login: React.FC = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -47,9 +52,14 @@ export const Login: React.FC = () => {
     const fetchTenants = async () => {
       try {
         const response = await api.get('/api/v1/tenants');
-        setTenants(response.data);
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          setTenants(response.data);
+        } else {
+          setTenants(DEFAULT_TENANTS);
+        }
       } catch (err) {
-        setError('No se pudo cargar la lista de Inquilinos/Empresas.');
+        // Fallback dinámico a empresas demo si el servidor API está desconectado o en Vercel
+        setTenants(DEFAULT_TENANTS);
       } finally {
         setLoadingTenants(false);
       }
