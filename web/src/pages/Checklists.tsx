@@ -387,7 +387,7 @@ export const Checklists: React.FC = () => {
                     <TableCell sx={{ fontSize: '0.85rem' }}>{sub.submittedAt}</TableCell>
                     <TableCell style={{ fontWeight: 'bold' }}>
                       {sub.workerName}
-                      <Typography variant="caption" display="block" color="text.secondary">
+                      <Typography variant="caption" sx={{ display: 'block' }} color="text.secondary">
                         {sub.workerEmail}
                       </Typography>
                     </TableCell>
@@ -581,7 +581,7 @@ export const Checklists: React.FC = () => {
               <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>{selectedSubmission?.workerName}</Typography>
               <Typography variant="caption" color="text.secondary">{selectedSubmission?.workerEmail}</Typography>
             </Box>
-            <Box textAlign="right">
+            <Box sx={{ textAlign: 'right' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Patente: {selectedSubmission?.vehiclePlate}</Typography>
               <Typography variant="caption" color="text.secondary">{selectedSubmission?.submittedAt}</Typography>
             </Box>
