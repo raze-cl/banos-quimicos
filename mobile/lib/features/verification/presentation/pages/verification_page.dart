@@ -7,7 +7,7 @@ import 'package:mobile/features/verification/presentation/cubit/verification_cub
 import 'package:mobile/features/verification/presentation/cubit/verification_state.dart';
 import 'package:mobile/features/verification/data/models/document_model.dart';
 import 'package:mobile/features/verification/data/models/vehicle_model.dart';
-import 'package:mobile/features/checklists/presentation/pages/checklists_page.dart';
+import 'package:mobile/features/routes/presentation/pages/routes_list_page.dart';
 import 'package:mobile/core/di/service_locator.dart';
 
 class VerificationPage extends StatefulWidget {
@@ -52,7 +52,7 @@ class _VerificationPageState extends State<VerificationPage> {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
                   builder: (context) =>
-                      ChecklistsPage(user: widget.user, vehicle: state.vehicle),
+                      RoutesListPage(user: widget.user),
                 ),
               );
             }
@@ -335,7 +335,7 @@ class _VerificationPageState extends State<VerificationPage> {
               ),
             ),
             child: const Text(
-              'CONFIRMAR E INICIAR CHECKLISTS',
+              'CONFIRMAR VEHÍCULO E INICIAR RUTAS',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),

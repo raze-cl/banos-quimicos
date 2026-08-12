@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
-import 'package:mobile/features/verification/presentation/pages/verification_page.dart';
+import 'package:mobile/features/checklists/presentation/pages/checklists_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
           if (state is Authenticated) {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (context) => VerificationPage(user: state.user),
+                builder: (context) => ChecklistsPage(user: state.user),
               ),
             );
           } else if (state is AuthError) {

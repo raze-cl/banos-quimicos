@@ -6,7 +6,7 @@ import 'features/sync/domain/sync_manager.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
 import 'features/auth/presentation/cubit/auth_state.dart';
 import 'features/auth/presentation/pages/login_page.dart';
-import 'features/verification/presentation/pages/verification_page.dart';
+import 'features/checklists/presentation/pages/checklists_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
               );
             }
             if (state is Authenticated) {
-              return VerificationPage(user: state.user);
+              return ChecklistsPage(user: state.user);
             }
             return const LoginPage();
           },

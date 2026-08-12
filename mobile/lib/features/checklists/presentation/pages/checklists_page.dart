@@ -7,17 +7,17 @@ import 'package:mobile/features/auth/data/models/user_model.dart';
 import 'package:mobile/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:mobile/features/auth/presentation/pages/login_page.dart';
 import 'package:mobile/features/verification/data/models/vehicle_model.dart';
+import 'package:mobile/features/verification/presentation/pages/verification_page.dart';
 import 'package:mobile/features/checklists/presentation/cubit/checklist_cubit.dart';
 import 'package:mobile/features/checklists/presentation/cubit/checklist_state.dart';
 import 'package:mobile/features/checklists/data/models/checklist_model.dart';
-import 'package:mobile/features/routes/presentation/pages/routes_list_page.dart';
 import 'package:mobile/core/di/service_locator.dart';
 
 class ChecklistsPage extends StatefulWidget {
   final UserModel user;
-  final VehicleModel vehicle;
+  final VehicleModel? vehicle;
 
-  const ChecklistsPage({super.key, required this.user, required this.vehicle});
+  const ChecklistsPage({super.key, required this.user, this.vehicle});
 
   @override
   State<ChecklistsPage> createState() => _ChecklistsPageState();
@@ -208,7 +208,7 @@ class _ChecklistsPageState extends State<ChecklistsPage> {
           ElevatedButton(
             onPressed: allCompleted
                 ? () {
-                    // Finaliza verificación global de ingreso
+                    // Finaliza los 4 checklists obligatorios y pasa al escaneo del camión
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
@@ -219,24 +219,27 @@ class _ChecklistsPageState extends State<ChecklistsPage> {
                               color: Colors.green,
                             ),
                             SizedBox(width: 10),
-                            Text('¡Ingreso Autorizado!'),
+                            Text('¡Checklists Aprobados!'),
                           ],
                         ),
                         content: const Text(
-                          'Felicidades. Has validado tus pases, tu vehículo y los 4 checklists de seguridad con éxito.\nYa puedes iniciar tus rutas del día.',
+                          'Felicidades. Has completado exitosamente los 4 controles de seguridad obligatorios.\n\nA continuación, debes escanear el código QR del vehículo/camión asignado.',
                         ),
                         actions: [
                           ElevatedButton(
                             onPressed: () {
-                              Navigator.of(context).pushAndRemoveUntil(
+                              Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      RoutesListPage(user: widget.user),
+                                      VerificationPage(user: widget.user),
                                 ),
-                                (route) => false,
                               );
                             },
-                            child: const Text('Entendido'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('ESCANEAR VEHÍCULO / CAMIÓN'),
                           ),
                         ],
                       ),
@@ -255,7 +258,7 @@ class _ChecklistsPageState extends State<ChecklistsPage> {
             ),
             child: Text(
               allCompleted
-                  ? 'FINALIZAR VALIDACIÓN GENERAL'
+                  ? 'APROBAR CHECKLISTS Y ESCANEAR CAMIÓN'
                   : 'COMPLETA TODOS LOS CHECKLISTS',
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
@@ -453,7 +456,7 @@ class _ChecklistsPageState extends State<ChecklistsPage> {
                                 answers: answers,
                                 answerPhotos: answerPhotos,
                                 questions: cl.questions,
-                                vehicleId: widget.vehicle.id,
+                                vehicleId: widget.vehicle?.id ?? 'CAMION-001',
                               )
                               .then((_) {
                                 // Si se completó correctamente, marcar ID
